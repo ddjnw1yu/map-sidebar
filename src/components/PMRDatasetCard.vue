@@ -56,6 +56,15 @@
             >
               Simulation
             </el-button>
+            <el-button 
+              v-if="Object.keys(hyperlinks).length"
+              v-for="(value, key) in hyperlinks"
+              size="small"
+              class="button"
+              @click="onHyperlinkClick(key, value)"
+            >
+              Multiscale {{ key }}
+            </el-button>
           </div>
         </div>
       </div>
@@ -71,6 +80,7 @@ import {
   ElIcon,
   ElTag
 } from 'element-plus'
+import EventBus from './EventBus.js'
 
 /**
  * Entry Object - Data types
@@ -139,6 +149,10 @@ export default {
       type: Object,
       default: () => {}
     },
+    hyperlinks: {
+      type: Object,
+      default: {},
+    }
   },
   data: function () {
     return {
@@ -147,6 +161,13 @@ export default {
     };
   },
   methods: {
+    onHyperlinkClick: function (key, value) {
+      this.emitPMRActionClick({
+        type: key[0].toUpperCase() + key.slice(1),
+        resource: value,
+        multiscale: true
+      });
+    },
     onFlatmapClick: function (data) {
       this.emitPMRActionClick({
         type: 'Flatmap',
@@ -166,7 +187,7 @@ export default {
         description: this.entry.description,
         apiLocation: this.envVars.API_LOCATION,
       };
-      this.$emit('pmr-action-click', payload);
+      EventBus.emit('pmr-action-click', payload);
     },
   }
 };

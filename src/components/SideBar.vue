@@ -61,6 +61,7 @@
                 :contextCardEntry="tab.contextCard"
                 :envVars="envVars"
                 :ref="'searchTab_' + tab.id"
+                :hyperlinks="hyperlinks"
                 @search-changed="searchChanged(tab.id, $event)"
                 @hover-changed="hoverChanged($event)"
               />
@@ -166,6 +167,10 @@ export default {
         x: 0,
         y: 0,
       },
+    },
+    hyperlinks: {
+      type: Object,
+      default: {},
     }
   },
   data: function () {
@@ -301,9 +306,6 @@ export default {
     setDrawerOpen: function (value = true) {
       this.drawerOpen = value
     },
-    onPmrActionClick: function (payload) {
-      this.$emit('actionClick', payload);
-    },
     /**
      * The function to emit 'tabClicked' event with tab's `id` and tab's `type`
      * when user clicks the sidebar tab.
@@ -400,6 +402,11 @@ export default {
     // Get available anatomy facets for the connectivity info
     EventBus.on('available-facets', (payLoad) => {
         this.availableAnatomyFacets = payLoad.find((facet) => facet.label === 'Anatomical Structure').children
+    })
+
+    // Get available anatomy facets for the connectivity info
+    EventBus.on('pmr-action-click', (payLoad) => {
+      this.$emit('actionClick', payLoad);
     })
 
   },

@@ -53,7 +53,7 @@
           class="dataset-card"
           :entry="result"
           :envVars="envVars"
-          @pmr-action-click="onPmrActionClick"
+          :hyperlinks="hyperlinks"
           @mouseenter="hoverChanged(result)"
           @mouseleave="hoverChanged(undefined)"
         ></PMRDatasetCard>
@@ -170,6 +170,10 @@ export default {
       type: Object,
       default: () => {},
     },
+    hyperlinks: {
+      type: Object,
+      default: {},
+    }
   },
   data: function () {
     return {
@@ -208,9 +212,6 @@ export default {
   methods: {
     hoverChanged: function (data) {
       this.$emit('hover-changed', data)
-    },
-    onPmrActionClick: function (data) {
-      this.$emit('pmr-action-click', data);
     },
     // resetSearch: Resets the results, and page, and variable results ratio
     //     Does not: reset filters, search input, or search history
