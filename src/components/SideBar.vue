@@ -42,7 +42,7 @@
                 @connectivity-component-click="onConnectivityComponentClick"
               />
             </template>
-            <template v-else-if="tab.type === 'annotation'">
+            <template v-if="tab.type === 'annotation'">
               <annotation-tool
                 :ref="'annotationTab_' + tab.id"
                 v-show="tab.id === activeTabId"
@@ -54,7 +54,7 @@
                 @confirm-delete="$emit('confirm-delete', $event)"
               />
             </template>
-            <template v-else>
+            <template v-if="tab.type === 'search'">
               <SidebarContent
                 class="sidebar-content-container"
                 v-show="tab.id === activeTabId"
@@ -172,6 +172,14 @@ export default {
     return {
       drawerOpen: false,
       availableAnatomyFacets: []
+    }
+  },
+  watch: {
+    connectivityInfo: function (newVal) {
+      // Clear connectivity state when connectivity info tab is closed.
+      if (!newVal) {
+        this.clearConnectivityState();
+      }
     }
   },
   methods: {
@@ -321,6 +329,19 @@ export default {
     updateConnectivityGraphError: function (errorInfo) {
       EventBus.emit('connectivity-graph-error', errorInfo);
     },
+    /**
+     * Store available anatomy facets data for connectivity list component
+     */
+    storeAvailableAnatomyFacets: function (availableAnatomyFacets) {
+      localStorage.setItem('available-anatomy-facets', JSON.stringify(availableAnatomyFacets))
+    },
+    /**
+     * Remove saved states for connectivity info views
+     */
+    clearConnectivityState: function () {
+      localStorage.removeItem('connectivity-active-view');
+      localStorage.removeItem('connectivity-source');
+    },
   },
   computed: {
     // This should respect the information provided by the property
@@ -390,12 +411,18 @@ export default {
       this.tabClicked({id: 1, type: 'search'});
       this.$emit('actionClick', payLoad);
     })
+    EventBus.on('connectivity-source-change', (payLoad) => {
+      this.$emit('connectivity-source-change', payLoad);
+    })
 
     // Get available anatomy facets for the connectivity info
     EventBus.on('available-facets', (payLoad) => {
         this.availableAnatomyFacets = payLoad.find((facet) => facet.label === 'Anatomical Structure').children
+        this.storeAvailableAnatomyFacets(this.availableAnatomyFacets);
     })
 
+    // clear connectivity view states on first load
+    this.clearConnectivityState();
   },
 }
 </script>
